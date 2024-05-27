@@ -4,10 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="main.css" />
   </head>
   <body>
     <div id="app"></div>
+    <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"
+  ></script>
     <script src="main.js"></script>
   </body>
 
@@ -27,7 +33,10 @@
         <button class="sign-form-button" id="signin-form-buttom">Login</button>
       </form>
       <p>
-        Don't have an account? <a class="sign-account-link" id="register-account-link" href="#">Create one here</a>
+        Don't have an account?
+        <a class="sign-account-link" id="register-account-link" href="#"
+          >Create one here</a
+        >
       </p>
     </div>
   </template>
@@ -45,10 +54,15 @@
           <label for="register-password">Password</label>
           <input type="password" id="register-password" class="sign-input" />
         </div>
-        <button class="sign-form-button" id="register-form-buttom">Register</button>
+        <button class="sign-form-button" id="register-form-buttom">
+          Register
+        </button>
       </form>
       <p>
-        Already have an account? <a  class="sign-account-link" id="signin-account-link"  href="#">Login here</a>
+        Already have an account?
+        <a class="sign-account-link" id="signin-account-link" href="#"
+          >Login here</a
+        >
       </p>
     </div>
   </template>
@@ -56,7 +70,10 @@
   <!-- home template -->
   <template id="home-template">
     <div id="home-container">
-      HOME
+      <p id="appTitle">Mis Tareas</p>
+      <input type="text" name="taskNameInput" id="taskNameInput" />
+      <button id="createButton">Create Task</button>
+      <div id="taskListContainer"></div>
     </div>
   </template>
 </html>
