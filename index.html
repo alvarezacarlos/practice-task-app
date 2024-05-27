@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="main.js"></script>
+  </body>
+
+  <!-- signin template -->
+  <template id="signin-form-template">
+    <div id="signin-form-container">
+      <p class="sign-form-title">Login Form</p>
+      <form action="" class="sign-form">
+        <div>
+          <label for="username">Username</label>
+          <input type="text" id="username" class="sign-input" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="text" id="password" class="sign-input" />
+        </div>
+        <button class="sign-form-button" id="signin-form-buttom">Login</button>
+      </form>
+      <p>
+        Don't have an account? <a class="sign-account-link" id="register-account-link" href="#">Create one here</a>
+      </p>
+    </div>
+  </template>
+
+  <!-- register template -->
+  <template id="register-form-template">
+    <div id="register-form-container">
+      <p class="sign-form-title">Register Form</p>
+      <form action="" class="sign-form">
+        <div>
+          <label for="username">Username</label>
+          <input type="text" id="username" class="sign-input" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="text" id="password" class="sign-input" />
+        </div>
+        <button class="sign-form-button" id="register-form-buttom">Register</button>
+      </form>
+      <p>
+        Already have an account? <a  class="sign-account-link" id="signin-account-link"  href="#">Login here</a>
+      </p>
+    </div>
+  </template>
+
+  <!-- home template -->
+  <template id="home-template">
+    <div id="home-container">
+      HOME
+    </div>
+  </template>
+</html>
