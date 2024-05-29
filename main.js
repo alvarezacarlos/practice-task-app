@@ -5,9 +5,10 @@ const routes = {
 };
 
 let router = routes.login;
-
 let users = [];
 let taskListArray = [];
+
+const API_URL = "https://tasks-app-ecd71-default-rtdb.firebaseio.com";
 
 //**************** Home - tasks
 
@@ -20,7 +21,6 @@ const handleClearInput = () => {
   const taskName = document.getElementById("taskNameInput");
   taskName.value = "";
 };
-
 
 const handleCompleteTask = (e) => {
   let clickedIcon = e.target;
@@ -35,7 +35,7 @@ const handleCompleteTask = (e) => {
 
     clickedIcon.classList.remove("bi-check-circle-fill");
     clickedIcon.classList.add("bi-arrow-counterclockwise");
-    
+
     let taskTitle = clickedTask.querySelector("p");
     taskTitle.style.textDecoration = "line-through";
   } else {
@@ -78,42 +78,55 @@ function handleCreateTask() {
   // add new task description
   let newTaskTitle = document.createElement("p");
   newTaskTitle.innerHTML = taskName.value;
-  let taskId = generateId();
-  taskListArray.push({ _id: taskId, title: taskName.value, open: true });
-  newTask.appendChild(newTaskTitle);
+  const user = JSON.parse(localStorage.getItem("user"))
+  console.log(user)
+  const newTaskItem = {
+    title: taskName.value,
+    open: true, 
+    userId: user.userId,
+  };
 
-  // add new
-  newTask.classList.add("task");
-  newTask.setAttribute("data-id", taskId);
+  fetch(`${API_URL}/tasks.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newTaskItem),
+  }).then((res) => {
+    taskListArray.push(newTaskItem);
+    newTask.appendChild(newTaskTitle);
+    // add new
+    newTask.classList.add("task");
+    // newTask.setAttribute("data-id", taskId);
 
-  // add task Icons
-  let taskIconsContainer = document.createElement("div");
-  taskIconsContainer.classList.add("iconsContainer");
+    // add task Icons
+    let taskIconsContainer = document.createElement("div");
+    taskIconsContainer.classList.add("iconsContainer");
 
-  // add complete icon
-  let completeIcon = document.createElement("i");
-  completeIcon.classList.add(
-    "bi",
-    "bi-check-circle-fill",
-    "completeIcon",
-    "taskIcon"
-  );
-  completeIcon.addEventListener("click", handleCompleteTask);
-  taskIconsContainer.append(completeIcon);
+    // add complete icon
+    let completeIcon = document.createElement("i");
+    completeIcon.classList.add(
+      "bi",
+      "bi-check-circle-fill",
+      "completeIcon",
+      "taskIcon"
+    );
+    completeIcon.addEventListener("click", handleCompleteTask);
+    taskIconsContainer.append(completeIcon);
 
-  // add delete icon
-  let deleteIcon = document.createElement("i");
-  deleteIcon.classList.add("bi", "bi-trash-fill", "deleteIcon", "taskIcon");
-  deleteIcon.addEventListener("click", handleDeleteTask);
-  taskIconsContainer.append(deleteIcon);
+    // add delete icon
+    let deleteIcon = document.createElement("i");
+    deleteIcon.classList.add("bi", "bi-trash-fill", "deleteIcon", "taskIcon");
+    deleteIcon.addEventListener("click", handleDeleteTask);
+    taskIconsContainer.append(deleteIcon);
 
-  newTask.appendChild(taskIconsContainer);
+    newTask.appendChild(taskIconsContainer);
+    taskList.appendChild(newTask);
 
-  taskList.appendChild(newTask);
-
-  // clear textinput
-  handleClearInput();
-  console.log(taskListArray);
+    // clear textinput
+    handleClearInput();
+    console.log(taskListArray);
+  });
 }
 
 const handleKeyDown = (e) => {
@@ -125,7 +138,9 @@ const handleKeyDown = (e) => {
 
 const clearApp = () => {
   let app = document.getElementById("app");
-  app.removeChild(app.firstElementChild);
+  if (app.firstElementChild) {
+    app.removeChild(app.firstElementChild);
+  }
 };
 
 const handleLoginLink = () => {
@@ -150,39 +165,37 @@ const validateRegisterForm = () => {
     if (user) {
       validation.authMessage = "The username already exists";
       validation.authenticated = false;
-      return validation
+      return;
     }
 
     const newUser = {
       username: usernameInput.value.trim(),
-      password: passwordInput.value.trim(),
-    };
-    users.push(newUser);
+      password: passwordInput.value.trim()
+    };   
 
-    validation.authMessage = "User registered Successfully";
-    validation.authenticated = true;
+    fetch(`${API_URL}/users.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newUser),
+    }).then((res) => {
+      validation.authMessage = "User registered Successfully";
+      validation.authenticated = true;
 
-    return validation
+      router = routes.login;
+      clearApp();
+      redirect();
+    });
   }
 
   validation.authMessage = "Please fill the form";
-  validation.authenticated = false;
-
-  return validation;
+  validation.authenticated = false;  
+  
 };
 
 const handleRegisterForm = () => {
-  const {authMessage, authenticated} = validateRegisterForm()
-  if (!authenticated) {
-    console.log(authMessage)
-    return
-  }
-
-  router = routes.login;
-  console.log(authMessage);
-  console.log(users);
-  clearApp()
-  redirect();
+  validateRegisterForm();  
 };
 
 const renderRegister = () => {
@@ -217,6 +230,7 @@ const renderHome = () => {
   let app = document.getElementById("app");
   let homeTemplate = document.getElementById("home-template");
   let homeTemplateContentNode = document.importNode(homeTemplate.content, true);
+
   clearApp();
   app.insertAdjacentElement(
     "beforeend",
@@ -239,44 +253,42 @@ const validateLoginForm = () => {
   };
 
   if (usernameInput.value.trim() && passwordInput.value.trim()) {
-    const user = users.find(
-      (user) => user.username === usernameInput.value.trim()
-    );
+    // console.log(usernameInput.value.trim(), passwordInput.value.trim());
 
-    if (!user) {
-      validation.authMessage = "Invalid Username or Password";
-      validation.authenticated = false;
-      return validation;
-    }
+    fetch("https://tasks-app-ecd71-default-rtdb.firebaseio.com/users.json")
+      .then((response) => {
+        if (!response.ok) {
+          validation.authMessage = "Invalid Username or Password";
+          validation.authenticated = false;
+        }
+        return response.json();
+      })
+      .then((users) => {
+        let userFound = false;
+        for (let key in users) {
+          if (
+            users[key].username === usernameInput.value.trim() &&
+            users[key].password === passwordInput.value.trim()
+          ) {
+            validation.authMessage = "User authenticated successfully";
+            validation.authenticated = true;
+            router = routes.home;
+            localStorage.setItem("user", JSON.stringify({ userId: key }));
+            console.log(validation.authMessage);
+            userFound = true;
+            break;
+          }
+        }
 
-    if (user.password !== passwordInput.value.trim()) {
-      validation.authMessage = "Invalid Username or Password";
-      validation.authenticated = false;
-      return validation;
-    }
-
-    validation.authMessage = "User authenticated successfully";
-    validation.authenticated = true;
-
-    return validation;
+        if (userFound) {
+          redirect();
+        }
+      });
   }
-
-  validation.authMessage = "Please fill the form";
-  validation.authenticated = false;
-
-  return validation;
 };
 
 const handleSigninForm = () => {
-  const { authMessage, authenticated } = validateLoginForm();
-  if (!authenticated) {
-    console.log(authMessage);
-    return;
-  }
-
-  router = routes.home;
-  console.log(authMessage);  
-  redirect();
+  validateLoginForm();
 };
 
 const renderLogin = () => {
@@ -300,7 +312,16 @@ const renderLogin = () => {
   signinFormButton.addEventListener("click", handleSigninForm);
 };
 
+const checkForAuth = () => {
+  const user = localStorage.getItem("user");
+  if (user) {
+    return true;
+  }
+  return false;
+};
+
 const redirect = () => {
+  console.log(router);
   if (router === routes.login) {
     renderLogin();
     return;
@@ -316,4 +337,10 @@ const redirect = () => {
   }
 };
 
-window.onload = redirect;
+window.onload = () => {
+  const isAuth = checkForAuth();
+  if (isAuth) {
+    router = routes.home;
+  }
+  redirect();
+};
