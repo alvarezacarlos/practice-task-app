@@ -20,7 +20,7 @@
   <!-- signin template -->
   <template id="signin-form-template">
     <div id="signin-form-container">
-      <p class="sign-form-title">Login Form</p>
+        <p class="sign-form-title">Login Form</p>
       <form action="" class="sign-form">
         <div>
           <label for="login-username">Username</label>
@@ -69,8 +69,11 @@
 
   <!-- home template -->
   <template id="home-template">
-    <div id="home-container">
-      <p id="appTitle">Mis Tareas</p>
+    <div id="home-container">      
+      <div id="home-header">        
+        <p id="appTitle">Mis Tareas</p>
+        <p id="logout">Log out</p>
+      </div>
       <input type="text" name="taskNameInput" id="taskNameInput" />
       <button id="createButton">Create Task</button>
       <div id="taskListContainer"></div>

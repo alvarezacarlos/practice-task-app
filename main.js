@@ -47,6 +47,17 @@ const handleCompleteTask = (e) => {
     let taskTitle = clickedTask.querySelector("p");
     taskTitle.style.textDecoration = "none";
   }
+
+
+  fetch(`${API_URL}/tasks/${clickedTaskId}.json`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(clickedTaskArrayItem)
+  })
+  .then(res => res.json())
+  .then(res => console.log(res))
 };
 
 const handleDeleteTask = (e) => {
@@ -58,9 +69,16 @@ const handleDeleteTask = (e) => {
   );
   taskListArray.splice(clickedTaskIndex, 1);
 
-  const taskListContainer = document.getElementById("taskListContainer");
-  taskListContainer.removeChild(clickedTask);
-  console.log(taskListArray);
+  fetch(`${API_URL}/tasks/${clickedTaskId}.json`, {
+    method: "DELETE",
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log(res);
+      const taskListContainer = document.getElementById("taskListContainer");
+      taskListContainer.removeChild(clickedTask);
+      console.log(taskListArray);
+    });
 };
 
 function handleCreateTask() {
@@ -78,11 +96,11 @@ function handleCreateTask() {
   // add new task description
   let newTaskTitle = document.createElement("p");
   newTaskTitle.innerHTML = taskName.value;
-  const user = JSON.parse(localStorage.getItem("user"))
-  console.log(user)
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log(user);
   const newTaskItem = {
     title: taskName.value,
-    open: true, 
+    open: true,
     userId: user.userId,
   };
 
@@ -92,41 +110,45 @@ function handleCreateTask() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(newTaskItem),
-  }).then((res) => {
-    taskListArray.push(newTaskItem);
-    newTask.appendChild(newTaskTitle);
-    // add new
-    newTask.classList.add("task");
-    // newTask.setAttribute("data-id", taskId);
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      // console.log('response', res.name)
+      taskListArray.push({ ...newTaskItem, _id: res.name });
+      newTask.appendChild(newTaskTitle);
 
-    // add task Icons
-    let taskIconsContainer = document.createElement("div");
-    taskIconsContainer.classList.add("iconsContainer");
+      // add new
+      newTask.classList.add("task");
+      newTask.setAttribute("data-id", res.name);
 
-    // add complete icon
-    let completeIcon = document.createElement("i");
-    completeIcon.classList.add(
-      "bi",
-      "bi-check-circle-fill",
-      "completeIcon",
-      "taskIcon"
-    );
-    completeIcon.addEventListener("click", handleCompleteTask);
-    taskIconsContainer.append(completeIcon);
+      // add task Icons
+      let taskIconsContainer = document.createElement("div");
+      taskIconsContainer.classList.add("iconsContainer");
 
-    // add delete icon
-    let deleteIcon = document.createElement("i");
-    deleteIcon.classList.add("bi", "bi-trash-fill", "deleteIcon", "taskIcon");
-    deleteIcon.addEventListener("click", handleDeleteTask);
-    taskIconsContainer.append(deleteIcon);
+      // add complete icon
+      let completeIcon = document.createElement("i");
+      completeIcon.classList.add(
+        "bi",
+        "bi-check-circle-fill",
+        "completeIcon",
+        "taskIcon"
+      );
+      completeIcon.addEventListener("click", handleCompleteTask);
+      taskIconsContainer.append(completeIcon);
 
-    newTask.appendChild(taskIconsContainer);
-    taskList.appendChild(newTask);
+      // add delete icon
+      let deleteIcon = document.createElement("i");
+      deleteIcon.classList.add("bi", "bi-trash-fill", "deleteIcon", "taskIcon");
+      deleteIcon.addEventListener("click", handleDeleteTask);
+      taskIconsContainer.append(deleteIcon);
 
-    // clear textinput
-    handleClearInput();
-    console.log(taskListArray);
-  });
+      newTask.appendChild(taskIconsContainer);
+      taskList.appendChild(newTask);
+
+      // clear textinput
+      handleClearInput();
+      console.log(taskListArray);
+    });
 }
 
 const handleKeyDown = (e) => {
@@ -170,8 +192,8 @@ const validateRegisterForm = () => {
 
     const newUser = {
       username: usernameInput.value.trim(),
-      password: passwordInput.value.trim()
-    };   
+      password: passwordInput.value.trim(),
+    };
 
     fetch(`${API_URL}/users.json`, {
       method: "POST",
@@ -190,12 +212,11 @@ const validateRegisterForm = () => {
   }
 
   validation.authMessage = "Please fill the form";
-  validation.authenticated = false;  
-  
+  validation.authenticated = false;
 };
 
 const handleRegisterForm = () => {
-  validateRegisterForm();  
+  validateRegisterForm();
 };
 
 const renderRegister = () => {
@@ -226,6 +247,75 @@ const handleRegisterLink = () => {
   redirect();
 };
 
+const handleFetchTasks = () => {
+
+  const user = JSON.parse(localStorage.getItem('user'))
+
+  // console.log(user, `${API_URL}/tasks.json?orderBy="userId"&equalTo="${user.userId}"`)
+
+  fetch(`${API_URL}/tasks.json?orderBy="userId"&equalTo="${user.userId}"`)
+    .then((res) => res.json())
+    .then((tasks) => {
+      for (let key in tasks) {
+        let newTaskContainer = document.createElement("div");
+        newTaskContainer.classList.add("task");
+        newTaskContainer.setAttribute("data-id", key);
+
+        let taskTitle = document.createElement("p");
+        taskTitle.innerHTML = `${tasks[key].title}`;        
+        let iconsContainer = document.createElement("div");
+        let completeIcon = document.createElement("i");
+        let deleteIcon = document.createElement("i");       
+
+        deleteIcon.classList.add(
+          "bi",
+          "bi-trash-fill",
+          "deleteIcon",
+          "taskIcon"
+        );
+        deleteIcon.addEventListener("click", handleDeleteTask);
+        iconsContainer.classList.add("iconsContainer");        
+        let taskListContainer = document.querySelector("#taskListContainer");
+
+        if (tasks[key].open) {   
+          completeIcon.classList.add(
+            "bi",
+            "bi-check-circle-fill",
+            "completeIcon",
+            "taskIcon"
+          );
+          // taskTitle.style.textDecoration = "none";
+        } else {
+          completeIcon.classList.add(
+            "bi",
+            "bi-arrow-counterclockwise",
+            "completeIcon",
+            "taskIcon"
+          );  
+          taskTitle.style.textDecoration = "line-through";
+        }
+        
+        newTaskContainer.appendChild(taskTitle);
+
+        completeIcon.addEventListener("click", handleCompleteTask);
+        iconsContainer.append(completeIcon);
+        iconsContainer.append(deleteIcon);
+
+        newTaskContainer.appendChild(iconsContainer);
+        taskListContainer.appendChild(newTaskContainer);
+
+        taskListArray.push({
+          title: tasks[key].title,
+          open: tasks[key].open,
+          userId: tasks[key].userId,
+          _id: key,
+        });
+      }
+
+      console.log(taskListArray);
+    });
+};
+
 const renderHome = () => {
   let app = document.getElementById("app");
   let homeTemplate = document.getElementById("home-template");
@@ -241,6 +331,15 @@ const renderHome = () => {
   taskName.addEventListener("keydown", handleKeyDown);
   const createButton = document.getElementById("createButton");
   createButton.addEventListener("click", handleCreateTask);
+
+  const logout = document.getElementById('logout')
+  logout.addEventListener('click', () => {
+    localStorage.removeItem('user')
+    clearApp()
+    checkForAuth()
+  })  
+
+  handleFetchTasks();
 };
 
 const validateLoginForm = () => {
@@ -315,9 +414,11 @@ const renderLogin = () => {
 const checkForAuth = () => {
   const user = localStorage.getItem("user");
   if (user) {
-    return true;
+    router = routes.home;
+  }else{
+    router = routes.login;
   }
-  return false;
+  redirect();
 };
 
 const redirect = () => {
@@ -337,10 +438,7 @@ const redirect = () => {
   }
 };
 
+
 window.onload = () => {
-  const isAuth = checkForAuth();
-  if (isAuth) {
-    router = routes.home;
-  }
-  redirect();
+  checkForAuth()
 };

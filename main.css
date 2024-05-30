@@ -14,7 +14,7 @@ body {
 }
 
 #app{
-  width: 100%;
+  width: 90%;
   max-width: 1300px;
   display: flex;
   justify-content: center;
@@ -23,14 +23,14 @@ body {
 
 #signin-form-container, #register-form-container {
   background-color: #fff;
-  padding: 20px 30px;
+  padding: 20px 20px;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 16px;
-  width: 100%;
-  max-width: 350px;
+  width: 30%;
+  max-width: 760px;
 }
 
 .sign-form {
@@ -84,9 +84,9 @@ body {
 /* home */
 #home-container{
   background-color: #fff;
-  padding: 20px 80px;
+  padding: 20px 20px;
   border-radius: 15px;
-  border: 3px solid #000;
+  /* border: 3px solid #000; */
 
   display: flex;
   flex-direction: column;
@@ -94,7 +94,7 @@ body {
   align-items: center;
   gap: 10px;
 
-  width: 60%;
+  width: 50%;
   max-width: 1300px;
 }
 
@@ -164,4 +164,32 @@ body {
 }
 .deleteIcon:hover{
   color: rgb(218, 37, 37);
+}
+
+#home-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+#logout{
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+#logout:hover{
+  color:coral;
+}
+
+@media (max-width: 650px){
+  #signin-form-container, #register-form-container{
+    width: 90%;
+  }
+
+  #home-container{
+    width: 90%;
+  }
 }
